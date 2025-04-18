@@ -10,6 +10,7 @@ use handlebars::Handlebars;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde_json::Value;
+use toml::Table;
 use std::{collections::HashMap, env, fs::read_to_string, path::PathBuf};
 use yaml_rust::{Yaml, YamlLoader};
 
@@ -222,6 +223,7 @@ fn merge_vars(root_vars: &mut HashMap<String, String>, vars: HashMap<String, Str
 // region:    Load Vars
 enum FileVarsSource {
 	Json(PathBuf),
+	Toml(PathBuf),
 	NotSupported(PathBuf),
 }
 
@@ -230,6 +232,7 @@ impl FileVarsSource {
 		if let Some(Some(ext)) = path.extension().map(|v| v.to_str().map(|v| v.to_lowercase())) {
 			match ext.as_str() {
 				"json" => FileVarsSource::Json(path),
+				"toml" => FileVarsSource::Toml(path),
 				_ => FileVarsSource::NotSupported(path),
 			}
 		} else {
@@ -284,6 +287,38 @@ fn load_vars_from_file(dir: &PathBuf, yaml_item: &Yaml, vars: &mut HashMap<Strin
 					}
 					Err(ex) => {
 						println!("KDD WARNING - Invalid json for {} ex: {} - SKIP", path.to_string_lossy(), ex);
+					}
+				},
+				Err(ex) => {
+					println!("KDD WARNING - Cannot read from {} because {} - SKIP", path.to_string_lossy(), ex);
+				}
+			},
+			FileVarsSource::Toml(path) => match read_to_string(&path) {
+				Ok(content) => match toml::from_str::<Table>(&content) {
+					Ok(src_toml) => {
+						for extract_item in extract {
+							if let Some(var_path) = extract_item.as_str() {
+								if let Some(value) = src_toml.get(var_path) {
+                                    let value = value.to_string();
+                                    let value_trimmed = value.trim_matches('"');
+                                    vars.insert(var_path.to_owned(), value_trimmed.to_string());
+								} else {
+								    for (_block, sub_val) in src_toml.iter() {
+										if let toml::Value::Table(sub_table) = sub_val {
+            								if let Some(value) = src_toml.get(var_path) {
+                                                let value = value.to_string();
+                                                let value_trimmed = value.trim_matches('"');
+                                                vars.insert(var_path.to_owned(), value_trimmed.to_string());
+                                                break;
+                                            }
+										}
+									}
+								}
+							}
+						}
+					}
+					Err(ex) => {
+						println!("KDD WARNING - Invalid toml for {} ex: {} - SKIP", path.to_string_lossy(), ex);
 					}
 				},
 				Err(ex) => {
