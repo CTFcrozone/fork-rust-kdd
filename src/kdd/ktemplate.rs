@@ -15,7 +15,12 @@ use pathdiff::diff_paths;
 use super::{error::KddError, realm::Realm, Kdd};
 
 impl Kdd {
-	pub fn k_templates(&self, realm: &Realm, names: Option<&[&str]>, print_full: bool) -> Result<Vec<PathBuf>, KddError> {
+	pub fn k_templates(
+		&self,
+		realm: &Realm,
+		names: Option<&[&str]>,
+		print_full: bool,
+	) -> Result<Vec<PathBuf>, KddError> {
 		let k8s_files = realm.k8s_files(names);
 		let mut k8s_out_files: Vec<PathBuf> = Vec::new();
 
@@ -77,7 +82,12 @@ impl Kdd {
 		Ok(k8s_out_files)
 	}
 
-	fn k_render_file(&self, hbs: &Handlebars<'_>, src_content: &str, vars: &HashMap<String, String>) -> Result<String, RenderError> {
+	fn k_render_file(
+		&self,
+		hbs: &Handlebars<'_>,
+		src_content: &str,
+		vars: &HashMap<String, String>,
+	) -> Result<String, RenderError> {
 		hbs.render_template(src_content, vars)
 	}
 }

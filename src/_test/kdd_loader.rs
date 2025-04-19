@@ -44,7 +44,11 @@ fn loader_dev_realm() -> Result<(), Box<dyn Error>> {
 	let realm = &kdd.realms["dev"];
 	let vars = &realm.vars;
 	// normal dev realm property
-	assert_eq!(Some("Some dev stuff"), get_str(vars, "dev_stuff"), "dev_stuff realm var");
+	assert_eq!(
+		Some("Some dev stuff"),
+		get_str(vars, "dev_stuff"),
+		"dev_stuff realm var"
+	);
 	// property inherited from _base_
 	assert_eq!(Some("8080"), get_str(vars, "ext_port"), "ext_port realm var");
 	// property overriden by dev
@@ -63,7 +67,11 @@ fn loader_prod_realm() -> Result<(), Box<dyn Error>> {
 	let realm = &kdd.realms["app-prod"];
 	let vars = &realm.vars;
 	// prod_stuff property should be None
-	assert_eq!(Some("Some prod stuff"), get_str(vars, "prod_stuff"), "prod_stuff realm var");
+	assert_eq!(
+		Some("Some prod stuff"),
+		get_str(vars, "prod_stuff"),
+		"prod_stuff realm var"
+	);
 	// dev_stuff property should be None
 	assert_eq!(None, get_str(vars, "dev_stuff"), "dev_stuff realm var");
 	// came from the _base_

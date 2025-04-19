@@ -33,7 +33,9 @@ impl KubeEvent {
 				let reason = jsons::as_string(&value, "/reason");
 				let message = jsons::as_string(&value, "/message");
 				let timestamp = jsons::as_string(&value, "/lastTimestamp");
-				if let (Some(kind), Some(name), Some(reason), Some(message), Some(timestamp)) = (kind, name, reason, message, timestamp) {
+				if let (Some(kind), Some(name), Some(reason), Some(message), Some(timestamp)) =
+					(kind, name, reason, message, timestamp)
+				{
 					let data = KubeEventData {
 						kind,
 						name,

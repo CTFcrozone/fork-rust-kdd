@@ -49,7 +49,10 @@ impl Kdd {
 		) {
 			// push successful, just forward Ok(())
 			(_, Ok(_)) => {
-				println!("====== /Pushing image {} : {} - DONE\n", local_image_uri, remote_image_uri);
+				println!(
+					"====== /Pushing image {} : {} - DONE\n",
+					local_image_uri, remote_image_uri
+				);
 				Ok(())
 			}
 			// if local registry realm and error, canot be recovered, forward error
@@ -67,12 +70,18 @@ impl Kdd {
 				match exec_cmd_args(Some(cwd), "docker", &["push", remote_image_uri]) {
 					Ok(_) => {
 						println!("Recovered OK!");
-						println!("====== /Pushing image {} : {} - DONE\n", local_image_uri, remote_image_uri);
+						println!(
+							"====== /Pushing image {} : {} - DONE\n",
+							local_image_uri, remote_image_uri
+						);
 						Ok(())
 					}
 					Err(ex) => {
 						println!("Failed recover (cause: {})", ex);
-						println!("====== /Pushing image {} : {} - FAILED\n", local_image_uri, remote_image_uri);
+						println!(
+							"====== /Pushing image {} : {} - FAILED\n",
+							local_image_uri, remote_image_uri
+						);
 						Err(KddError::DpushFailed(ex.to_string()))
 					}
 				}

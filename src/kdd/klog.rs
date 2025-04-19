@@ -43,7 +43,14 @@ async fn show_klogs_for_pods(kdd: &Kdd, service_names: Option<Vec<String>>) -> R
 
 	// --- Start the initial pod monitors
 	let pods_provider = kdd.get_pods_provider();
-	let pod_names = refresh_pod_monitors(&pods_provider, &service_names, None, log_tx.clone(), kube_events_tx.clone()).await?;
+	let pod_names = refresh_pod_monitors(
+		&pods_provider,
+		&service_names,
+		None,
+		log_tx.clone(),
+		kube_events_tx.clone(),
+	)
+	.await?;
 
 	// --- Listen to pod events and do refresh_pod_monitors as needed
 	monitor_kube_events(kube_events_tx.clone()).await?;
@@ -97,8 +104,7 @@ async fn show_klogs_for_pods(kdd: &Kdd, service_names: Option<Vec<String>>) -> R
 			// split the logs by service name
 			let mut map: HashMap<String, Vec<LogMessage>> = HashMap::new();
 			for log_message in buf.into_iter() {
-				map
-					.entry(log_message.service_name.to_string())
+				map.entry(log_message.service_name.to_string())
 					.or_insert_with(Vec::new)
 					.push(log_message)
 			}

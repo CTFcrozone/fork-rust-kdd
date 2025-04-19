@@ -174,7 +174,10 @@ impl Kdd {
 		let mut pods: Vec<Pod> = Vec::new();
 
 		for json_pod in json_pods {
-			match (json_pod.pointer("/metadata/name"), json_pod.pointer("/metadata/labels/run")) {
+			match (
+				json_pod.pointer("/metadata/name"),
+				json_pod.pointer("/metadata/labels/run"),
+			) {
 				(Some(Value::String(pod_name)), Some(Value::String(service_name))) => {
 					pods.push(Pod {
 						name: pod_name.to_owned(),

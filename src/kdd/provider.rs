@@ -71,7 +71,14 @@ impl Provider for AwsProvider {
 				exec_cmd_args(
 					None,
 					"aws",
-					&["ecr", "create-repository", "--profile", &realm.profile(), "--repository-name", name],
+					&[
+						"ecr",
+						"create-repository",
+						"--profile",
+						&realm.profile(),
+						"--repository-name",
+						name,
+					],
 				)?;
 			}
 		}
@@ -81,12 +88,21 @@ impl Provider for AwsProvider {
 	fn docker_auth(&self, realm: &Realm) -> Result<(), KddError> {
 		if let Some(registry) = &realm.registry {
 			// get the password
-			let pwd = exec_to_stdout(None, "aws", &["ecr", "get-login-password", "--profile", &realm.profile()], false)?;
+			let pwd = exec_to_stdout(
+				None,
+				"aws",
+				&["ecr", "get-login-password", "--profile", &realm.profile()],
+				false,
+			)?;
 
 			// execute the login
 			let cmd = "docker";
 			let args = &["login", "--username", "AWS", "--password-stdin", registry];
-			println!("> executing: {} {} (with previous command result as stdin)", cmd, args.join(" "));
+			println!(
+				"> executing: {} {} (with previous command result as stdin)",
+				cmd,
+				args.join(" ")
+			);
 			let mut proc = Command::new(&cmd);
 			proc.args(args);
 			proc.stdin(Stdio::piped());
@@ -105,8 +121,14 @@ impl AwsProvider {
 		let profile = realm.profile();
 
 		// aws ecr describe-repositories --profile jc-root
-		let json = exec_to_stdout(None, "aws", &["ecr", "describe-repositories", "--profile", &profile], false)?;
-		let json = serde_json::from_str::<Value>(&json).map_err(|ex| KddError::AwsEcrDescribeRepositoriesFailed(ex.to_string()))?;
+		let json = exec_to_stdout(
+			None,
+			"aws",
+			&["ecr", "describe-repositories", "--profile", &profile],
+			false,
+		)?;
+		let json = serde_json::from_str::<Value>(&json)
+			.map_err(|ex| KddError::AwsEcrDescribeRepositoriesFailed(ex.to_string()))?;
 		if let Some(reps) = json["repositories"].as_array() {
 			for rep in reps {
 				if let Some(name) = rep["repositoryName"].as_str() {

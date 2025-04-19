@@ -28,7 +28,12 @@ impl Version {
 		let by = as_string(yaml, "by");
 		let files = as_strings(yaml, "in");
 		if let (Some(val), Some(replace), Some(by), Some(files)) = (val, replace, by, files) {
-			Some(Version { val, replace, by, files })
+			Some(Version {
+				val,
+				replace,
+				by,
+				files,
+			})
 		} else {
 			None
 		}

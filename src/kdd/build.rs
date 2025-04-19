@@ -8,7 +8,11 @@ use crate::kdd::builder::RunOccurrence;
 use super::{builder::Builder, error::KddError, Block, Kdd};
 
 impl Kdd {
-	pub fn blocks_for_names(&self, names: Option<&[&str]>, docker_block: bool) -> Result<(Vec<&Block>, HashMap<&str, &Block>), KddError> {
+	pub fn blocks_for_names(
+		&self,
+		names: Option<&[&str]>,
+		docker_block: bool,
+	) -> Result<(Vec<&Block>, HashMap<&str, &Block>), KddError> {
 		let block_by_name: HashMap<&str, &Block> = self.blocks.iter().map(|b| (b.name.as_str(), b)).collect();
 
 		let mut blocks_to_build = match names {
@@ -144,7 +148,10 @@ impl Kdd {
 		}
 
 		for block in blocks_to_build {
-			println!("==================   Block '{}' building... ==================", block.name);
+			println!(
+				"==================   Block '{}' building... ==================",
+				block.name
+			);
 			if let Some(dependencies) = &block.dependencies {
 				for block_name in dependencies.iter() {
 					if blocks_built.contains(block_name) {
@@ -152,8 +159,12 @@ impl Kdd {
 					} else {
 						match block_by_name.get(block_name.as_str()) {
 							Some(dep_block) => {
-								println!("======  Dependency '{}' for '{}' building... ", dep_block.name, block.name);
-								(blocks_built, builders_executed) = build_block(dep_block, &self, blocks_built, builders_executed).await;
+								println!(
+									"======  Dependency '{}' for '{}' building... ",
+									dep_block.name, block.name
+								);
+								(blocks_built, builders_executed) =
+									build_block(dep_block, &self, blocks_built, builders_executed).await;
 								println!("====== /Dependency '{}' for '{}' DONE\n", dep_block.name, block.name);
 							}
 							None => {

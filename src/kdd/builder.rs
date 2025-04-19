@@ -60,7 +60,10 @@ impl Builder {
 				None | Some("block") => RunOccurrence::Block,
 				Some("session") => RunOccurrence::Session,
 				Some(other) => {
-					let error = KddError::InvalidBuilder(name.to_string(), "'run' can only be 'block' or 'session'.".to_string());
+					let error = KddError::InvalidBuilder(
+						name.to_string(),
+						"'run' can only be 'block' or 'session'.".to_string(),
+					);
 					println!("KDD ERROR PARSING KDD YAML. {:?}", error);
 					return None;
 					// TODO - this method should probably return Result
@@ -197,7 +200,12 @@ impl Exec {
 		proc.args(args);
 
 		// execute
-		println!("> executing: {} {} (at cwd: {})  ", cmd, args.join(" "), cwd.to_string_lossy(),);
+		println!(
+			"> executing: {} {} (at cwd: {})  ",
+			cmd,
+			args.join(" "),
+			cwd.to_string_lossy(),
+		);
 		match proc.spawn() {
 			Ok(proc) => Ok(proc),
 			Err(ex) => {
