@@ -306,27 +306,18 @@ fn load_vars_from_file(dir: &PathBuf, yaml_item: &Yaml, vars: &mut HashMap<Strin
 					Ok(src_toml) => {
 						for extract_item in extract {
 							if let Some(var_path) = extract_item.as_str() {
-								match src_toml.get(var_path) {
-									Some(value) => {
-										let value = value.to_string();
-										let value_trimmed = value.trim_matches('"');
-										vars.insert(var_path.to_owned(), value_trimmed.to_owned());
-									}
-									None => {
-										for (_block, sub_val) in &src_toml {
-											if let toml::Value::Table(sub_table) = sub_val {
-												match sub_table.get(var_path) {
-													Some(value) => {
-														let value = value.to_string();
-														let value_trimmed = value.trim_matches('"');
-														vars.insert(var_path.to_owned(), value_trimmed.to_owned());
-														break;
-													}
-													None => continue,
-												}
-											}
+								let value_opt = src_toml.get(var_path).or_else(|| {
+									src_toml.values().find_map(|val| {
+										if let toml::Value::Table(sub_table) = val {
+											sub_table.get(var_path)
+										} else {
+											None
 										}
-									}
+									})
+								});
+								if let Some(value) = value_opt {
+									let value_trimmed = value.to_string().trim_matches('"').to_owned();
+									vars.insert(var_path.to_owned(), value_trimmed);
 								}
 							}
 						}
@@ -347,6 +338,7 @@ fn load_vars_from_file(dir: &PathBuf, yaml_item: &Yaml, vars: &mut HashMap<Strin
 					);
 				}
 			},
+
 			FileVarsSource::NotSupported(path) => {
 				println!(
 					"KDD WARNING - file {} not supported as a variable source. - SKIP",
